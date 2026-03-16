@@ -190,7 +190,7 @@ fn apply_merge(merge: &MergeSemantics, responses: &[serde_json::Value]) -> HookR
                 skip: if skip { Some(true) } else { Option::None },
                 data: last_params,
             }
-        },
+        }
 
         MergeSemantics::LastNonNull { field } => {
             let mut last_value: Option<serde_json::Value> = Option::None;
@@ -207,7 +207,7 @@ fn apply_merge(merge: &MergeSemantics, responses: &[serde_json::Value]) -> HookR
                 skip: Option::None,
                 data: last_value,
             }
-        },
+        }
     }
 }
 
@@ -243,7 +243,7 @@ fn dispatch_hook(event_type: &str, payload: &serde_json::Value) -> Result<Vec<u8
                 "failed to deserialize hook responses: {e}"
             );
             Vec::new()
-        },
+        }
     };
 
     if responses.is_empty() && matches!(mapping.merge, MergeSemantics::None) {
