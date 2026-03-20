@@ -80,6 +80,9 @@ action = "on_kernel_started"
 event = "astrid.v1.lifecycle.kernel_shutdown"
 action = "on_kernel_shutdown"
 
+[dependencies]
+provides = ["rfc:hook-lifecycle.v1"]
+
 [capabilities]
 # Hook bridge needs to publish hook results on the event bus
 ipc_publish = [
