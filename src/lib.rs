@@ -28,10 +28,11 @@
 //! response collection) lives in the kernel's `astrid_trigger_hook`
 //! host function.
 
+use astrid_sdk::contracts::HookResult;
 use astrid_sdk::prelude::*;
 use serde::Serialize;
 
-// ── Merge Semantics ────────────────────────────────────────────────
+// ── Merge Semantics ────────────────────────────────────────────────────────────────
 
 /// How interceptor responses are merged for a hook.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -51,7 +52,7 @@ struct HookMapping {
     merge: MergeSemantics,
 }
 
-// ── Hook Trigger Protocol ──────────────────────────────────────────
+// ── Hook Trigger Protocol ──────────────────────────────────────────────────────────
 
 /// Request payload sent to `hooks::trigger` (consumed by the kernel's
 /// `astrid_trigger_hook` host function).
@@ -61,18 +62,7 @@ struct TriggerRequest<'a> {
     payload: &'a serde_json::Value,
 }
 
-/// Merged result from hook fan-out.
-#[derive(Serialize)]
-struct HookResult {
-    /// Whether the operation should be skipped (ToolCallBefore semantics).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    skip: Option<bool>,
-    /// Merged data from interceptor responses.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    data: Option<serde_json::Value>,
-}
-
-// ── Event-to-Hook Mapping Table ────────────────────────────────────
+// ── Event-to-Hook Mapping Table ────────────────────────────────────────────────────
 
 /// Resolve the hook mapping for a given event type string.
 ///
@@ -159,7 +149,7 @@ fn mapping_for_event(event_type: &str) -> Option<HookMapping> {
     }
 }
 
-// ── Merge Logic ────────────────────────────────────────────────────
+// ── Merge Logic ────────────────────────────────────────────────────────────────────
 
 /// Apply merge semantics to a list of interceptor responses.
 fn apply_merge(merge: &MergeSemantics, responses: &[serde_json::Value]) -> HookResult {
@@ -188,7 +178,7 @@ fn apply_merge(merge: &MergeSemantics, responses: &[serde_json::Value]) -> HookR
 
             HookResult {
                 skip: if skip { Some(true) } else { Option::None },
-                data: last_params,
+                data: last_params.map(|v| v.to_string()),
             }
         }
 
@@ -205,13 +195,13 @@ fn apply_merge(merge: &MergeSemantics, responses: &[serde_json::Value]) -> HookR
 
             HookResult {
                 skip: Option::None,
-                data: last_value,
+                data: last_value.map(|v| v.to_string()),
             }
         }
     }
 }
 
-// ── Core Dispatch ──────────────────────────────────────────────────
+// ── Core Dispatch ──────────────────────────────────────────────────────────────────
 
 /// Dispatch a lifecycle event through the hook system.
 ///
@@ -229,19 +219,16 @@ fn dispatch_hook(event_type: &str, payload: &serde_json::Value) -> Result<Vec<u8
         hook: mapping.hook_name,
         payload,
     };
-    let request_bytes = serde_json::to_vec(&request)
+    let request_str = serde_json::to_string(&request)
         .map_err(|e| SysError::ApiError(format!("failed to serialize trigger request: {e}")))?;
 
-    let response_bytes = hooks::trigger(&request_bytes)?;
+    let response_str = hooks::trigger(&request_str)?;
 
     // Parse the response array from the kernel.
-    let responses: Vec<serde_json::Value> = match serde_json::from_slice(&response_bytes) {
+    let responses: Vec<serde_json::Value> = match serde_json::from_str(&response_str) {
         Ok(v) => v,
         Err(e) => {
-            extism_pdk::log!(
-                extism_pdk::LogLevel::Warn,
-                "failed to deserialize hook responses: {e}"
-            );
+            log::warn(format!("failed to deserialize hook responses: {e}"));
             Vec::new()
         }
     };
@@ -255,7 +242,7 @@ fn dispatch_hook(event_type: &str, payload: &serde_json::Value) -> Result<Vec<u8
         .map_err(|e| SysError::ApiError(format!("failed to serialize hook result: {e}")))
 }
 
-// ── Capsule Implementation ─────────────────────────────────────────
+// ── Capsule Implementation ─────────────────────────────────────────────────────────
 
 /// Hook Bridge capsule.
 ///
