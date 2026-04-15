@@ -28,9 +28,22 @@
 //! response collection) lives in the kernel's `astrid_trigger_hook`
 //! host function.
 
-use astrid_sdk::contracts::HookResult;
 use astrid_sdk::prelude::*;
 use serde::Serialize;
+
+/// Merged result from hook fan-out.
+///
+/// Uses `serde_json::Value` for `data` (not `String`) to preserve the
+/// wire format: consumers expect `data` as a nested JSON object, not a
+/// JSON-encoded string. The WIT contract describes this as `option<string>`
+/// for schema purposes, but the Rust type must match what goes on the wire.
+#[derive(Serialize)]
+struct HookResult {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    skip: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    data: Option<serde_json::Value>,
+}
 
 // ── Merge Semantics ────────────────────────────────────────────────────────────────
 
@@ -178,7 +191,7 @@ fn apply_merge(merge: &MergeSemantics, responses: &[serde_json::Value]) -> HookR
 
             HookResult {
                 skip: if skip { Some(true) } else { Option::None },
-                data: last_params.map(|v| v.to_string()),
+                data: last_params,
             }
         }
 
@@ -195,7 +208,7 @@ fn apply_merge(merge: &MergeSemantics, responses: &[serde_json::Value]) -> HookR
 
             HookResult {
                 skip: Option::None,
-                data: last_value.map(|v| v.to_string()),
+                data: last_value,
             }
         }
     }
