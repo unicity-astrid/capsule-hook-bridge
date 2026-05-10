@@ -17,19 +17,19 @@ type = "executable"
 "hook.v1.result.*" = { wit = "hook-result" }
 
 [subscribe]
-"astrid.v1.lifecycle.session_created" = { wit = "TODO", handler = "on_session_created" }
-"astrid.v1.lifecycle.session_ended" = { wit = "TODO", handler = "on_session_ended" }
-"astrid.v1.lifecycle.tool_call_started" = { wit = "TODO", handler = "on_tool_call_started" }
-"astrid.v1.lifecycle.tool_call_completed" = { wit = "TODO", handler = "on_tool_call_completed" }
-"astrid.v1.lifecycle.tool_result_persisting" = { wit = "TODO", handler = "on_tool_result_persisting" }
-"astrid.v1.lifecycle.message_received" = { wit = "TODO", handler = "on_message_received" }
-"astrid.v1.lifecycle.message_sending" = { wit = "TODO", handler = "on_message_sending" }
-"astrid.v1.lifecycle.message_sent" = { wit = "TODO", handler = "on_message_sent" }
-"astrid.v1.lifecycle.sub_agent_spawned" = { wit = "TODO", handler = "on_subagent_spawned" }
-"astrid.v1.lifecycle.sub_agent_completed" = { wit = "TODO", handler = "on_subagent_completed" }
-"astrid.v1.lifecycle.sub_agent_failed" = { wit = "TODO", handler = "on_subagent_failed" }
-"astrid.v1.lifecycle.sub_agent_cancelled" = { wit = "TODO", handler = "on_subagent_cancelled" }
-"astrid.v1.lifecycle.context_compaction_started" = { wit = "TODO", handler = "on_compaction_started" }
-"astrid.v1.lifecycle.context_compaction_completed" = { wit = "TODO", handler = "on_compaction_completed" }
-"astrid.v1.lifecycle.kernel_started" = { wit = "TODO", handler = "on_kernel_started" }
-"astrid.v1.lifecycle.kernel_shutdown" = { wit = "TODO", handler = "on_kernel_shutdown" }
+"astrid.v1.lifecycle.session_created" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_session_created" }
+"astrid.v1.lifecycle.session_ended" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_session_ended" }
+"astrid.v1.lifecycle.tool_call_started" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_tool_call_started" }
+"astrid.v1.lifecycle.tool_call_completed" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_tool_call_completed" }
+"astrid.v1.lifecycle.tool_result_persisting" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_tool_result_persisting" }
+"astrid.v1.lifecycle.message_received" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_message_received" }
+"astrid.v1.lifecycle.message_sending" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_message_sending" }
+"astrid.v1.lifecycle.message_sent" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_message_sent" }
+"astrid.v1.lifecycle.sub_agent_spawned" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_subagent_spawned" }
+"astrid.v1.lifecycle.sub_agent_completed" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_subagent_completed" }
+"astrid.v1.lifecycle.sub_agent_failed" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_subagent_failed" }
+"astrid.v1.lifecycle.sub_agent_cancelled" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_subagent_cancelled" }
+"astrid.v1.lifecycle.context_compaction_started" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_compaction_started" }
+"astrid.v1.lifecycle.context_compaction_completed" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_compaction_completed" }
+"astrid.v1.lifecycle.kernel_started" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_kernel_started" }
+"astrid.v1.lifecycle.kernel_shutdown" = { wit = "@unicity-astrid/wit/hook/lifecycle-event", handler = "on_kernel_shutdown" }
