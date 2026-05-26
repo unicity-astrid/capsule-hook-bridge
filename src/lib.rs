@@ -246,7 +246,8 @@ fn correlation_id() -> Result<String, SysError> {
     let bytes = runtime::random_bytes(16)?;
     let mut s = String::with_capacity(32);
     for b in bytes {
-        s.push_str(&format!("{b:02x}"));
+        s.push(char::from_digit(u32::from(b >> 4), 16).unwrap_or('0'));
+        s.push(char::from_digit(u32::from(b & 0x0F), 16).unwrap_or('0'));
     }
     Ok(s)
 }
