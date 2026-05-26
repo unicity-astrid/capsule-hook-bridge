@@ -61,7 +61,6 @@ This is a **policy** capsule. It owns the event-to-hook mapping table and the me
 ## Development
 
 ```bash
-rustup target add wasm32-unknown-unknown
 cargo build --target wasm32-unknown-unknown --release
 ```
 
