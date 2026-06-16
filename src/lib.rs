@@ -32,6 +32,7 @@
 //! This is a **policy** capsule: it defines which lifecycle events map
 //! to which hook names and how responses are merged.
 
+use astrid_sdk::contracts::hook::HookEventRequest;
 use astrid_sdk::prelude::*;
 use serde::Serialize;
 
@@ -81,19 +82,14 @@ struct HookMapping {
 
 // ── Hook Trigger Protocol ──────────────────────────────────────────────────────────
 
-/// Request payload sent to subscriber capsules.
-///
-/// Subscribers see `hook.v1.event.<hook_name>` envelopes carrying this
-/// shape. When `correlation_id` is present, they must publish their
-/// reply to `hook.v1.response.<hook_name>.<correlation_id>`; when it's
-/// absent, the dispatch is fire-and-forget.
-#[derive(Serialize)]
-struct HookEventRequest<'a> {
-    hook: &'a str,
-    payload: &'a serde_json::Value,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    correlation_id: Option<&'a str>,
-}
+// The event published on `hook.v1.event.<hook_name>` is the canonical
+// `astrid:hook/hook-event-request` shape — `astrid_sdk::contracts::hook::HookEventRequest`,
+// shared with sage (the other producer) and the SDK consumer side. Per the
+// WIT, `payload` is the lifecycle event serialized as a JSON STRING (not an
+// inline value), so a subscriber using the canonical type / the SDK's
+// `HookEvent::payload::<T>()` can deserialize it. Subscribers reply on
+// `hook.v1.response.<hook_name>.<correlation_id>` when a correlation id is
+// present; absent => fire-and-forget.
 
 // ── Event-to-Hook Mapping Table ────────────────────────────────────────────────────
 
@@ -277,8 +273,8 @@ fn dispatch_hook(
     // so we don't allocate a subscription handle.
     if matches!(mapping.merge, MergeSemantics::None) {
         let request = HookEventRequest {
-            hook: mapping.hook_name,
-            payload,
+            hook: mapping.hook_name.to_string(),
+            payload: serde_json::to_string(payload)?,
             correlation_id: Option::None,
         };
         ipc::publish_json(&event_topic, &request)?;
@@ -293,9 +289,9 @@ fn dispatch_hook(
     let sub = ipc::subscribe(&reply_topic)?;
 
     let request = HookEventRequest {
-        hook: mapping.hook_name,
-        payload,
-        correlation_id: Some(&corr_id),
+        hook: mapping.hook_name.to_string(),
+        payload: serde_json::to_string(payload)?,
+        correlation_id: Some(corr_id.clone()),
     };
     ipc::publish_json(&event_topic, &request)?;
 
