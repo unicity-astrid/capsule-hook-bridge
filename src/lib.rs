@@ -291,7 +291,7 @@ fn dispatch_hook(
     let request = HookEventRequest {
         hook: mapping.hook_name.to_string(),
         payload: serde_json::to_string(payload)?,
-        correlation_id: Some(corr_id.clone()),
+        correlation_id: Some(corr_id),
     };
     ipc::publish_json(&event_topic, &request)?;
 
